@@ -1,0 +1,138 @@
+---
+import { fetchPublishedPosts, fetchCategories } from "@/lib/api/posts";
+import { BlogList } from "@/components/web/blog/BlogList";
+import BlogSearchBar from "@/components/ui/blogComponents/BlogSearchBar.astro";
+import BlogFilters from "@/components/ui/blogComponents/BlogFilters.astro";
+import Layout from "@/layouts/Layout.astro";
+
+const url = new URL(Astro.request.url);
+const page = parseInt(url.searchParams.get("page") || "1");
+const search = url.searchParams.get("search") || "";
+const category = url.searchParams.get("category") || "";
+const order = (url.searchParams.get("order") || "newest") as
+    | "newest"
+    | "oldest";
+const limit = 9;
+const offset = (page - 1) * limit;
+
+const { posts, total } = await fetchPublishedPosts(
+    limit,
+    offset,
+    search,
+    category,
+    order,
+);
+const totalPages = Math.ceil(total / limit);
+const categories = await fetchCategories();
+---
+
+<!doctype html>
+<Layout>
+    <main class="container mx-auto max-w-7xl px-4 pt-32 pb-20">
+        <header class="mb-12 text-center">
+            <h1 class="text-5xl font-bold text-secondary mb-4">
+                Bienvenido a nuestro blog
+            </h1>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                Mira nuestras últimas publicaciones y entérese de lo último en
+                Derecho.
+            </p>
+        </header>
+
+        <form method="get" action="/blog" class="mb-8">
+            <BlogSearchBar searchValue={search} totalResults={total} />
+
+            <BlogFilters
+                categories={categories}
+                selectedCategory={category}
+                selectedOrder={order}
+            />
+
+            <input type="hidden" name="page" value="1" />
+        </form>
+
+        <BlogList
+            posts={posts}
+            variant="grid"
+            currentPage={page}
+            totalPages={totalPages}
+            client:load
+        />
+
+        {
+            totalPages > 1 && (
+                <nav class="flex justify-center items-center gap-2 mt-12">
+                    {page > 1 && (
+                        <a
+                            href={`/blog?page=${page - 1}${search ? `&search=${encodeURIComponent(search)}` : ""}${category ? `&category=${encodeURIComponent(category)}` : ""}${order !== "newest" ? `&order=${order}` : ""}`}
+                            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                        >
+                            Anterior
+                        </a>
+                    )}
+
+                    <div class="flex gap-2">
+                        {Array.from(
+                            { length: totalPages },
+                            (_, i) => i + 1,
+                        ).map((p) => (
+                            <a
+                                href={`/blog?page=${p}${search ? `&search=${encodeURIComponent(search)}` : ""}${category ? `&category=${encodeURIComponent(category)}` : ""}${order !== "newest" ? `&order=${order}` : ""}`}
+                                class={`px-4 py-2 rounded-lg transition ${
+                                    p === page
+                                        ? "bg-secondary-light text-white font-semibold"
+                                        : "border border-gray-300 text-gray-700 hover:bg-gray-50"
+                                }`}
+                            >
+                                {p}
+                            </a>
+                        ))}
+                    </div>
+
+                    {page < totalPages && (
+                        <a
+                            href={`/blog?page=${page + 1}${search ? `&search=${encodeURIComponent(search)}` : ""}${category ? `&category=${encodeURIComponent(category)}` : ""}${order !== "newest" ? `&order=${order}` : ""}`}
+                            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                        >
+                            Siguiente
+                        </a>
+                    )}
+                </nav>
+            )
+        }
+
+        {
+            posts.length === 0 && (
+                <div class="text-center py-12">
+                    {search ? (
+                        <>
+                            <p class="text-gray-500 text-lg mb-4">
+                                No se encontraron publicaciones que coincidan
+                                con tu búsqueda
+                            </p>
+                            <a
+                                href="/blog"
+                                class="inline-block px-6 py-2 bg-secondary-light text-white rounded-full hover:bg-secondary transition"
+                            >
+                                Ver todas las publicaciones
+                            </a>
+                        </>
+                    ) : (
+                        <>
+                            <p class="text-gray-500 text-lg">
+                                No hay publicaciones disponibles en este
+                                momento.
+                            </p>
+                            <a
+                                href="/"
+                                class="inline-block mt-4 text-secondary-light hover:underline"
+                            >
+                                Volver al inicio
+                            </a>
+                        </>
+                    )}
+                </div>
+            )
+        }
+    </main>
+</Layout>

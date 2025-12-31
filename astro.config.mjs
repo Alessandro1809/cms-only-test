@@ -2,7 +2,7 @@
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
-import cloudflare from '@astrojs/cloudflare';
+import vercel from '@astrojs/vercel';
 import clerk from '@clerk/astro';
 
 // https://astro.build/config
@@ -13,5 +13,5 @@ export default defineConfig({
     },
 
     integrations: [react(), clerk()],
-    adapter: cloudflare()
+    adapter: vercel()
 });

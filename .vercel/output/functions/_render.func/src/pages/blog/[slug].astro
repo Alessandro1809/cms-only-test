@@ -1,0 +1,143 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import {
+    fetchPostBySlug,
+    fetchRelatedPosts,
+    fetchNextPost,
+} from "@/lib/api/posts";
+import { BlogHeader } from "@/components/web/blog/BlogHeader";
+import { BlogContent } from "@/components/web/blog/BlogContent";
+import { BlogSidebar } from "@/components/web/blog/BlogSidebar";
+import Subscribe from "@/components/ui/blogComponents/Subscribe.astro";
+import Button from "@/components/ui/buttons/Button.astro";
+import NextIcon from "@/components/ui/icons/nextIcon.astro";
+
+const { slug } = Astro.params;
+
+if (!slug) {
+    return Astro.redirect("/blog");
+}
+
+const post = await fetchPostBySlug(slug);
+
+if (!post) {
+    return Astro.redirect("/404");
+}
+
+const relatedPosts = await fetchRelatedPosts(post.id, post.categorie, 3);
+const nextPost = await fetchNextPost(post.id);
+---
+
+<!doctype html>
+<Layout>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{post.title} - Randall Solano Fallas</title>
+        <meta name="description" content={post.excerpt} />
+
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={post.excerpt} />
+        {
+            post.featuredImage && (
+                <meta property="og:image" content={post.featuredImage} />
+            )
+        }
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={post.title} />
+        <meta name="twitter:description" content={post.excerpt} />
+        {
+            post.featuredImage && (
+                <meta name="twitter:image" content={post.featuredImage} />
+            )
+        }
+    </head>
+
+    <nav class="container mx-auto max-w-7xl px-4 pt-32">
+        <ol class="flex items-center gap-2 text-sm text-gray-600 font-semibold">
+            <li>
+                <a
+                    href="/"
+                    class="hover:text-secondary-light transition text-secondary"
+                    >Inicio</a>
+            </li>
+            <li>/</li>
+            <li>
+                <a
+                    href="/blog"
+                    class="hover:text-secondary-light transition text-secondary"
+                    >Blog</a>
+            </li>
+            <li>/</li>
+            <li class="text-secondary-light truncate max-w-xs">{post.title}</li>
+        </ol>
+    </nav>
+
+    <div class="container mx-auto max-w-7xl px-4 py-6 flex items-center">
+        <button
+            onclick="history.back()"
+            class="flex items-center gap-2 text-secondary hover:text-secondary-light transition-colors group rotate-180"
+            aria-label="Volver atrás"
+        >
+            <NextIcon />
+        </button>
+
+        {
+            nextPost ? (
+                <a
+                    href={`/blog/${nextPost.slug}`}
+                    class="flex items-center gap-2 text-secondary hover:text-secondary-light transition-colors group"
+                    aria-label="Siguiente post"
+                >
+                    <NextIcon />
+                </a>
+            ) : (
+                <div class="w-24" />
+            )
+        }
+    </div>
+
+    <main class="container mx-auto max-w-7xl px-4 pb-20 pt-4">
+        <div class="">
+            <article
+                class="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-8"
+            >
+                <BlogHeader post={post} client:load />
+                <BlogContent content={post.content} client:load />
+            </article>
+        </div>
+
+        <aside class="lg:col-span-1">
+            <BlogSidebar
+                currentPost={post}
+                relatedPosts={relatedPosts}
+                client:load
+            />
+        </aside>
+
+        <Subscribe />
+
+        <div class="mt-12 text-center w-fit mx-auto">
+            <Button href="/blog" variant="primary" text="← Volver al blog" />
+        </div>
+    </main>
+
+    <script
+        type="application/ld+json"
+        set:html={JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            headline: post.title,
+            description: post.excerpt,
+            datePublished: post.createdAt,
+            dateModified: post.updatedAt,
+            author: {
+                "@type": "Person",
+                name: "Randall Solano Fallas",
+            },
+            keywords: post.tags.join(", "),
+        })}
+    />
+</Layout>

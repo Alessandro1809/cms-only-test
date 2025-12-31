@@ -6,7 +6,7 @@
 ![React](https://img.shields.io/badge/React-19.2.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.1.14-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![Cloudflare](https://img.shields.io/badge/Cloudflare-Pages-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
 **A premium, production-ready Content Management System built with cutting-edge web technologies**
 
@@ -47,7 +47,7 @@ This CMS was architected to solve common problems in content management:
 - **✍️ Rich Text Editing**: TipTap editor with extensive formatting capabilities
 - **📱 Fully Responsive**: Mobile-first design that works seamlessly across all devices
 - **⚡ Performance First**: Server-side rendering with Astro for lightning-fast page loads
-- **🌐 Edge Deployment**: Optimized for Cloudflare Pages with global CDN distribution
+- **🌐 Edge Deployment**: Optimized for Vercel with global edge network
 - **🔌 API-Agnostic**: Works with any RESTful backend API
 
 ---
@@ -175,11 +175,12 @@ Built with **TipTap**, the editor includes:
 
 ### **Deployment**
 
-- **[Cloudflare Pages](https://pages.cloudflare.com/)** - Edge deployment platform
-  - Global CDN
+- **[Vercel](https://vercel.com/)** - Edge deployment platform
+  - Global edge network
   - Automatic HTTPS
-  - Edge functions support
+  - Serverless functions
   - Zero-config deployments
+  - Built-in analytics
 
 ### **UI Components & Utilities**
 
@@ -197,7 +198,7 @@ Built with **TipTap**, the editor includes:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Cloudflare Pages                      │
+│                      Vercel Edge                         │
 │                    (Edge Network)                        │
 └────────────────────┬────────────────────────────────────┘
                      │
@@ -295,7 +296,7 @@ User Action → React Component → Custom Hook → API Client → Backend API
 ```
 blog-standalone/
 ├── .astro/                      # Astro build cache
-├── .wrangler/                   # Cloudflare Wrangler cache
+├── .vercel/                     # Vercel build cache
 ├── node_modules/                # Dependencies
 ├── public/                      # Static assets
 │   └── favicon.svg
@@ -699,7 +700,7 @@ const { openUploadWidget } = useCloudinaryUpload({
 
 ## 🌐 Deployment
 
-### **Deploying to Cloudflare Pages**
+### **Deploying to Vercel (Recommended)**
 
 #### **Method 1: Git Integration (Recommended)**
 
@@ -710,71 +711,95 @@ const { openUploadWidget } = useCloudinaryUpload({
    git push origin main
    ```
 
-2. **Connect to Cloudflare Pages**
-   - Log in to [Cloudflare Dashboard](https://dash.cloudflare.com)
-   - Go to Pages
-   - Click "Create a project"
-   - Connect your GitHub repository
+2. **Connect to Vercel**
+   - Log in to [Vercel Dashboard](https://vercel.com/dashboard)
+   - Click "Add New Project"
+   - Import your GitHub repository
    - Select `blog-standalone`
 
 3. **Configure Build Settings**
-   - **Framework preset**: Astro
-   - **Build command**: `pnpm build`
-   - **Build output directory**: `dist`
-   - **Node version**: 18 or higher
+   - **Framework preset**: Astro (auto-detected)
+   - **Build command**: `pnpm build` (auto-detected)
+   - **Output directory**: `dist` (auto-detected)
+   - **Node version**: 18.x or higher
 
 4. **Add Environment Variables**
    - Add all variables from your `.env` file
    - Make sure to use production values for Clerk and API URLs
+   - Variables to add:
+     - `PUBLIC_API_URL`
+     - `PUBLIC_CLERK_PUBLISHABLE_KEY`
+     - `CLERK_SECRET_KEY`
+     - `PUBLIC_CLOUDINARY_CLOUD_NAME`
+     - `PUBLIC_CLOUDINARY_UPLOAD_PRESET`
 
 5. **Deploy**
-   - Click "Save and Deploy"
-   - Cloudflare will build and deploy your site
-   - Every push to main will trigger a new deployment
+   - Click "Deploy"
+   - Vercel will build and deploy your site
+   - Every push to main will trigger automatic deployment
 
-#### **Method 2: Wrangler CLI**
+#### **Method 2: Vercel CLI**
 
-1. **Install Wrangler**
+1. **Install Vercel CLI**
    ```bash
-   pnpm add -D wrangler
+   npm i -g vercel
    ```
 
-2. **Login to Cloudflare**
+2. **Login to Vercel**
    ```bash
-   npx wrangler login
+   vercel login
    ```
 
-3. **Build the Project**
+3. **Deploy**
    ```bash
-   pnpm build
+   vercel
    ```
 
-4. **Deploy**
+4. **Deploy to Production**
    ```bash
-   npx wrangler pages deploy dist
+   vercel --prod
    ```
 
 ### **Deploying to Other Platforms**
 
-#### **Vercel**
+#### **Cloudflare Pages**
+
+If you prefer Cloudflare, you'll need to change the adapter:
 
 ```bash
-# Install Vercel CLI
-npm i -g vercel
+# Remove Vercel adapter
+pnpm remove @astrojs/vercel
 
-# Deploy
-vercel
+# Install Cloudflare adapter
+pnpm add @astrojs/cloudflare
 ```
+
+Then update `astro.config.mjs`:
+```javascript
+import cloudflare from '@astrojs/cloudflare';
+
+export default defineConfig({
+  // ... other config
+  adapter: cloudflare()
+});
+```
+
+Deploy via Git integration or Wrangler CLI.
 
 #### **Netlify**
 
 ```bash
+# Install Netlify adapter
+pnpm add @astrojs/netlify
+
 # Install Netlify CLI
 npm i -g netlify-cli
 
 # Deploy
 netlify deploy --prod
 ```
+
+Update `astro.config.mjs` to use the Netlify adapter.
 
 ### **Post-Deployment Checklist**
 
