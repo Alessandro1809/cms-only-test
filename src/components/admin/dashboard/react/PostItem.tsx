@@ -80,7 +80,7 @@ export const PostItem = React.memo(({ post }: PostItemProps) => {
                 return;
               }
 
-              const API_URL = import.meta.env.PUBLIC_API_URL;
+              const API_URL = import.meta.env.PUBLIC_API_URL || 'https://blog-api-jo8t.onrender.com/api/v1';
               const response = await fetch(`${API_URL}/posts/${post.id}`, {
                 method: 'DELETE',
                 headers: {

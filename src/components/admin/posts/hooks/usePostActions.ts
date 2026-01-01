@@ -6,7 +6,7 @@ declare global {
   }
 }
 
-const API_URL = import.meta.env.PUBLIC_API_URL;
+const API_URL = import.meta.env.PUBLIC_API_URL || 'https://blog-api-jo8t.onrender.com/api/v1';
 
 interface PostData {
   id?: string;

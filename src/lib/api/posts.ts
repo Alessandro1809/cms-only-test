@@ -1,6 +1,6 @@
 import type { Post, PostsResponse } from '@/components/web/blog/types';
 
-const API_URL = import.meta.env.PUBLIC_API_URL || 'https://blog-api-jo8t.onrender.com';
+const API_URL = import.meta.env.PUBLIC_API_URL || 'https://blog-api-jo8t.onrender.com/api/v1';
 
 export async function fetchPublishedPosts(
   limit: number = 10,

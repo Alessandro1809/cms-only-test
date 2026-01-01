@@ -1,5 +1,5 @@
 ---
-const API_URL = import.meta.env.PUBLIC_API_URL;
+const API_URL = import.meta.env.PUBLIC_API_URL || 'https://blog-api-jo8t.onrender.com/api/v1';
 
 // Función para obtener estadísticas de posts
 async function fetchPostStats() {
