@@ -17,7 +17,7 @@ const $$Index = createComponent(async ($$result, $$props, $$slots) => {
   if (userId) {
     return Astro2.redirect("/admin");
   }
-  return renderTemplate`<html lang="es"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><title>Acceso al CMS</title>${renderHead()}</head> <body class="bg-black min-h-screen flex items-center justify-center relative overflow-hidden"> <!-- Prismatic Aurora Burst - Multi-layered Gradient (Consistent with AdminLayout) --> <div class="absolute inset-0 z-0"${addAttribute({
+  return renderTemplate`<html lang="es"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><title>NOUS CMS welcome</title>${renderHead()}</head> <body class="bg-black min-h-screen flex items-center justify-center relative overflow-hidden"> <!-- Prismatic Aurora Burst - Multi-layered Gradient (Consistent with AdminLayout) --> <div class="absolute inset-0 z-0"${addAttribute({
     background: `
           radial-gradient(ellipse 120% 80% at 70% 20%, rgba(255, 20, 147, 0.15), transparent 50%),
           radial-gradient(ellipse 100% 60% at 30% 10%, rgba(0, 255, 255, 0.12), transparent 60%),

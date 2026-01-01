@@ -7,15 +7,15 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { g as getCategoryLabel } from "../chunks/categoryLabels_C9bKjRa1.mjs";
 import { renderers } from "../renderers.mjs";
 const $$StatusCards = createComponent(async ($$result, $$props, $$slots) => {
-  const API_URL = "https://blog-api-jo8t.onrender.com/api/v1";
+  const API_URL2 = "https://blog-api-jo8t.onrender.com/api/v1";
   async function fetchPostStats() {
     try {
       const publishedResponse = await fetch(
-        `${API_URL}/posts?status=PUBLISHED`
+        `${API_URL2}/posts?status=PUBLISHED`
       );
       const publishedData = await publishedResponse.json();
       const publishedCount = publishedData.total || 0;
-      const draftResponse = await fetch(`${API_URL}/posts?status=DRAFT`);
+      const draftResponse = await fetch(`${API_URL2}/posts?status=DRAFT`);
       const draftData = await draftResponse.json();
       const draftCount = draftData.total || 0;
       return {
@@ -32,7 +32,7 @@ const $$StatusCards = createComponent(async ($$result, $$props, $$slots) => {
   }
   async function fetchTotalViews() {
     try {
-      const response = await fetch(`${API_URL}/posts/stats/views`);
+      const response = await fetch(`${API_URL2}/posts/stats/views`);
       if (!response.ok) {
         return 0;
       }
@@ -118,6 +118,7 @@ function useFilters() {
     removeFilter
   };
 }
+const API_URL = "https://blog-api-jo8t.onrender.com/api/v1";
 function usePosts(filters) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -134,7 +135,7 @@ function usePosts(filters) {
       if (filters.categorie && filters.categorie !== "Todas") params.set("categorie", filters.categorie);
       if (filters.date) params.set("date", filters.date);
       if (filters.status) params.set("status", filters.status);
-      const response = await fetch(`http://localhost:3000/api/v1/posts?${params.toString()}`);
+      const response = await fetch(`${API_URL}/posts?${params.toString()}`);
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
@@ -451,8 +452,8 @@ const PostItem = React.memo(({ post }) => {
                 alert("No se pudo obtener el token de autenticación");
                 return;
               }
-              const API_URL = "https://blog-api-jo8t.onrender.com/api/v1";
-              const response = await fetch(`${API_URL}/posts/${post.id}`, {
+              const API_URL2 = "https://blog-api-jo8t.onrender.com/api/v1";
+              const response = await fetch(`${API_URL2}/posts/${post.id}`, {
                 method: "DELETE",
                 headers: {
                   "Authorization": `Bearer ${token}`
