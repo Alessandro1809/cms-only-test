@@ -15,6 +15,8 @@ export default defineConfig({
     integrations: [react(), clerk({
         domain: "admin.nous.cr",
         isSatellite: false,
+        signInUrl: "/sign-in",
+        signUpUrl: "/sign-up",
     })],
     adapter: vercel()
 });
