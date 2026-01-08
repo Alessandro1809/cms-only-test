@@ -1,0 +1,1 @@
+import{r as a}from"../index.CpWSQEdX.js";import"../chunk-MZTESQVU.DFZtgiu1.js";await a({domain:"admin.nous.cr",isSatellite:!1,sdkMetadata:{version:"2.16.7",name:"@clerk/astro",environment:"production"}});

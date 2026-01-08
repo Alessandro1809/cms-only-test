@@ -1,8 +1,8 @@
 import { webcrypto } from "node:crypto";
-import "./chunks/astro-designed-error-pages_DOB3ovM9.mjs";
+import "./chunks/astro-designed-error-pages_SI27i_4C.mjs";
 import "./chunks/astro/server_B9nb4zjO.mjs";
 import "clsx";
-import { s as sequence } from "./chunks/index_Bm4J6gs3.mjs";
+import { s as sequence } from "./chunks/index_BWDxxGnl.mjs";
 const isTestEnvironment = () => {
   try {
     return process.env.NODE_ENV === "test";
@@ -7202,13 +7202,13 @@ const createPathMatcher = (patterns) => {
   const matchers = precomputePathRegex([patterns || ""].flat().filter(Boolean));
   return (pathname) => matchers.some((matcher) => matcher.test(pathname));
 };
-const __vite_import_meta_env__ = { "ASSETS_PREFIX": void 0, "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "PUBLIC_API_URL": "https://blog-api-rrttqa.fly.dev/api/v1", "PUBLIC_CLERK_DOMAIN": "admin.nous.cr", "PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_c3RlYWR5LWNoZWV0YWgtODEuY2xlcmsuYWNjb3VudHMuZGV2JA", "PUBLIC_CLOUDINARY_CLOUD_NAME": "drwd1wtvt", "PUBLIC_CLOUDINARY_UPLOAD_PRESET": "Blog_uploads", "SITE": void 0, "SSR": true };
+const __vite_import_meta_env__ = { "ASSETS_PREFIX": void 0, "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "PUBLIC_API_URL": "https://blog-api-rrttqa.fly.dev/api/v1", "PUBLIC_CLERK_DOMAIN": "admin.nous.cr", "PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_live_Y2xlcmsuYWRtaW4ubm91cy5jciQ", "PUBLIC_CLOUDINARY_CLOUD_NAME": "drwd1wtvt", "PUBLIC_CLOUDINARY_UPLOAD_PRESET": "Blog_uploads", "SITE": void 0, "SSR": true };
 function getContextEnvVar(envVarName, contextOrLocals) {
   const locals = "locals" in contextOrLocals ? contextOrLocals.locals : contextOrLocals;
   if (locals?.runtime?.env) {
     return locals.runtime.env[envVarName];
   }
-  return Object.assign(__vite_import_meta_env__, { CLERK_SECRET_KEY: "sk_test_PBBMVacfdkDoSQ2O7YzPokRVX8bRB0vaD2l7y8PqAt" })[envVarName];
+  return Object.assign(__vite_import_meta_env__, { CLERK_SECRET_KEY: "sk_live_sdn3YfI63VAqxOkgDM4oNoclf5EwGlON53yW0WleCm" })[envVarName];
 }
 function getSafeEnv(context) {
   return {
@@ -7275,7 +7275,7 @@ var createClerkClientWithOptions = (context, options) => createClerkClient({
     name: "@clerk/astro",
     version: "2.16.7",
     // eslint-disable-next-line turbo/no-undeclared-env-vars
-    environment: Object.assign(__vite_import_meta_env__, { CLERK_SECRET_KEY: "sk_test_PBBMVacfdkDoSQ2O7YzPokRVX8bRB0vaD2l7y8PqAt" }).MODE
+    environment: Object.assign(__vite_import_meta_env__, { CLERK_SECRET_KEY: "sk_live_sdn3YfI63VAqxOkgDM4oNoclf5EwGlON53yW0WleCm" }).MODE
   },
   telemetry: {
     disabled: getSafeEnv(context).telemetryDisabled,

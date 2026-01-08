@@ -1,12 +1,12 @@
 import { R as ROUTE_TYPE_HEADER, w as REROUTE_DIRECTIVE_HEADER, D as DEFAULT_404_COMPONENT, A as AstroError, x as ActionNotFoundError, y as s, z as clientAddressSymbol, B as LocalsNotAnObject, C as REROUTABLE_STATUS_CODES, G as responseSentSymbol, H as nodeRequestAbortControllerCleanupSymbol, J as getAugmentedNamespace, K as commonjsGlobal } from "./astro/server_B9nb4zjO.mjs";
 import "clsx";
-import { D as DEFAULT_404_ROUTE, d as default404Instance, e as ensure404Route } from "./astro-designed-error-pages_DOB3ovM9.mjs";
+import { D as DEFAULT_404_ROUTE, d as default404Instance, e as ensure404Route } from "./astro-designed-error-pages_SI27i_4C.mjs";
 import buffer from "node:buffer";
 import crypto$1 from "node:crypto";
 import { Http2ServerResponse } from "node:http2";
 import { f as fileExtension, j as joinPaths, s as slash, p as prependForwardSlash, r as removeTrailingForwardSlash, a as appendForwardSlash, b as isInternalPath, c as collapseDuplicateTrailingSlashes, h as hasFileExtension } from "./path_DD7MkukS.mjs";
 import { m as matchPattern } from "./index_B9B7JtJn.mjs";
-import { r as requestIs404Or500, i as isRequestServerIsland, n as notFound, a as redirectToFallback, b as redirectToDefaultLocale, c as requestHasLocale, d as normalizeTheLocale, e as defineMiddleware, S as SERVER_ISLAND_COMPONENT, f as SERVER_ISLAND_ROUTE, g as createEndpoint, R as RouteCache, s as sequence, h as findRouteToRewrite, v as validateAndDecodePathname, m as matchRoute, j as RenderContext, P as PERSIST_SYMBOL, k as getSetCookiesFromResponse } from "./index_Bm4J6gs3.mjs";
+import { r as requestIs404Or500, i as isRequestServerIsland, n as notFound, a as redirectToFallback, b as redirectToDefaultLocale, c as requestHasLocale, d as normalizeTheLocale, e as defineMiddleware, S as SERVER_ISLAND_COMPONENT, f as SERVER_ISLAND_ROUTE, g as createEndpoint, R as RouteCache, s as sequence, h as findRouteToRewrite, v as validateAndDecodePathname, m as matchRoute, j as RenderContext, P as PERSIST_SYMBOL, k as getSetCookiesFromResponse } from "./index_BWDxxGnl.mjs";
 import { N as NOOP_MIDDLEWARE_FN } from "./noop-middleware_otGcZIJW.mjs";
 import require$$0 from "url";
 import nodePath from "node:path";
