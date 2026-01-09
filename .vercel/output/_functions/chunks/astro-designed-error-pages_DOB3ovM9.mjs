@@ -492,7 +492,7 @@ const ACTION_QUERY_PARAMS$1 = {
   actionName: "_action"
 };
 const ACTION_RPC_ROUTE_PATTERN = "/_actions/[...path]";
-const __vite_import_meta_env__ = { "ASSETS_PREFIX": void 0, "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "PUBLIC_API_URL": "https://blog-api-rrttqa.fly.dev/api/v1", "PUBLIC_CLERK_DOMAIN": "admin.nous.cr", "PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_live_Y2xlcmsuYWRtaW4ubm91cy5jciQ", "PUBLIC_CLOUDINARY_CLOUD_NAME": "drwd1wtvt", "PUBLIC_CLOUDINARY_UPLOAD_PRESET": "Blog_uploads", "SITE": void 0, "SSR": true };
+const __vite_import_meta_env__ = { "ASSETS_PREFIX": void 0, "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "PUBLIC_API_URL": "https://blog-api-rrttqa.fly.dev/api/v1", "PUBLIC_CLERK_DOMAIN": "admin.nous.cr", "PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_c3RlYWR5LWNoZWV0YWgtODEuY2xlcmsuYWNjb3VudHMuZGV2JA", "PUBLIC_CLOUDINARY_CLOUD_NAME": "drwd1wtvt", "PUBLIC_CLOUDINARY_UPLOAD_PRESET": "Blog_uploads", "SITE": void 0, "SSR": true };
 const ACTION_QUERY_PARAMS = ACTION_QUERY_PARAMS$1;
 const codeToStatusMap = {
   // Implemented from IANA HTTP Status Code Registry

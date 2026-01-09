@@ -1,12 +1,28 @@
 ---
 const API_URL = import.meta.env.PUBLIC_API_URL || 'https://blog-api-rrttqa.fly.dev/api/v1';
 
+// Helper para fetch con timeout
+async function fetchWithTimeout(url: string, timeout = 5000) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    
+    try {
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        return response;
+    } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
+    }
+}
+
 // Función para obtener estadísticas de posts
 async function fetchPostStats() {
     try {
         // Obtener posts publicados
-        const publishedResponse = await fetch(
+        const publishedResponse = await fetchWithTimeout(
             `${API_URL}/posts?status=PUBLISHED`,
+            5000
         );
         if (!publishedResponse.ok) {
             console.error(`Failed to fetch published posts: ${publishedResponse.status}`);
@@ -16,7 +32,7 @@ async function fetchPostStats() {
         const publishedCount = publishedData.total || 0;
 
         // Obtener posts en borrador
-        const draftResponse = await fetch(`${API_URL}/posts?status=DRAFT`);
+        const draftResponse = await fetchWithTimeout(`${API_URL}/posts?status=DRAFT`, 5000);
         if (!draftResponse.ok) {
             console.error(`Failed to fetch draft posts: ${draftResponse.status}`);
             return { published: publishedCount, draft: 0 };
@@ -40,9 +56,8 @@ async function fetchPostStats() {
 // Función para obtener total de vistas
 async function fetchTotalViews() {
     try {
-        const response = await fetch(`${API_URL}/posts/stats/views`);
+        const response = await fetchWithTimeout(`${API_URL}/posts/stats/views`, 5000);
         if (!response.ok) {
-            // Si el endpoint no existe, retornar 0
             return 0;
         }
         const data = await response.json();
@@ -53,9 +68,32 @@ async function fetchTotalViews() {
     }
 }
 
-// Obtener estadísticas
-const postStats = await fetchPostStats();
-const totalViews = await fetchTotalViews();
+// Obtener estadísticas con timeout general
+let postStats = { published: 0, draft: 0 };
+let totalViews = 0;
+
+try {
+    const statsPromise = Promise.race([
+        fetchPostStats(),
+        new Promise<{ published: number; draft: number }>((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout')), 8000)
+        )
+    ]);
+    
+    const viewsPromise = Promise.race([
+        fetchTotalViews(),
+        new Promise<number>((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout')), 8000)
+        )
+    ]);
+
+    [postStats, totalViews] = await Promise.all([
+        statsPromise.catch(() => ({ published: 0, draft: 0 })),
+        viewsPromise.catch(() => 0)
+    ]);
+} catch (error) {
+    console.error("Error loading dashboard stats:", error);
+}
 ---
 
 <section class="container mx-auto max-w-12xl mt-10">

@@ -6,10 +6,23 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { renderers } from "../renderers.mjs";
 const $$StatusCards = createComponent(async ($$result, $$props, $$slots) => {
   const API_URL2 = "https://blog-api-rrttqa.fly.dev/api/v1";
+  async function fetchWithTimeout(url, timeout = 5e3) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    try {
+      const response = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      return response;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
+    }
+  }
   async function fetchPostStats() {
     try {
-      const publishedResponse = await fetch(
-        `${API_URL2}/posts?status=PUBLISHED`
+      const publishedResponse = await fetchWithTimeout(
+        `${API_URL2}/posts?status=PUBLISHED`,
+        5e3
       );
       if (!publishedResponse.ok) {
         console.error(`Failed to fetch published posts: ${publishedResponse.status}`);
@@ -17,7 +30,7 @@ const $$StatusCards = createComponent(async ($$result, $$props, $$slots) => {
       }
       const publishedData = await publishedResponse.json();
       const publishedCount = publishedData.total || 0;
-      const draftResponse = await fetch(`${API_URL2}/posts?status=DRAFT`);
+      const draftResponse = await fetchWithTimeout(`${API_URL2}/posts?status=DRAFT`, 5e3);
       if (!draftResponse.ok) {
         console.error(`Failed to fetch draft posts: ${draftResponse.status}`);
         return { published: publishedCount, draft: 0 };
@@ -38,7 +51,7 @@ const $$StatusCards = createComponent(async ($$result, $$props, $$slots) => {
   }
   async function fetchTotalViews() {
     try {
-      const response = await fetch(`${API_URL2}/posts/stats/views`);
+      const response = await fetchWithTimeout(`${API_URL2}/posts/stats/views`, 5e3);
       if (!response.ok) {
         return 0;
       }
@@ -49,8 +62,28 @@ const $$StatusCards = createComponent(async ($$result, $$props, $$slots) => {
       return 0;
     }
   }
-  const postStats = await fetchPostStats();
-  const totalViews = await fetchTotalViews();
+  let postStats = { published: 0, draft: 0 };
+  let totalViews = 0;
+  try {
+    const statsPromise = Promise.race([
+      fetchPostStats(),
+      new Promise(
+        (_, reject) => setTimeout(() => reject(new Error("Timeout")), 8e3)
+      )
+    ]);
+    const viewsPromise = Promise.race([
+      fetchTotalViews(),
+      new Promise(
+        (_, reject) => setTimeout(() => reject(new Error("Timeout")), 8e3)
+      )
+    ]);
+    [postStats, totalViews] = await Promise.all([
+      statsPromise.catch(() => ({ published: 0, draft: 0 })),
+      viewsPromise.catch(() => 0)
+    ]);
+  } catch (error) {
+    console.error("Error loading dashboard stats:", error);
+  }
   return renderTemplate`${maybeRenderHead()}<section class="container mx-auto max-w-12xl mt-10"> <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"> <article class="flex flex-col gap-2 rounded-lg glass p-4 border border-white/5"> <h3 class="font-semibold text-gray-400">Cantidad de vistas</h3> <p class="text-3xl font-bold text-[var(--color-secondary)]"> ${totalViews.toLocaleString()} </p> </article> <article class="flex flex-col gap-2 rounded-lg glass p-4 border border-white/5"> <h3 class="font-semibold text-gray-400">
 Cantidad de suscriptores
 </h3> <p class="text-3xl font-bold text-[var(--color-secondary)]">32</p> </article> <article class="flex flex-col gap-2 rounded-lg glass p-4 border border-white/5"> <h3 class="font-semibold text-gray-400">Posts publicados</h3> <p class="text-3xl font-bold text-[var(--color-secondary)]"> ${postStats.published} </p> </article> <article class="flex flex-col gap-2 rounded-lg glass p-4 border border-white/5"> <h3 class="font-semibold text-gray-400">Posts en borrador</h3> <p class="text-3xl font-bold text-[var(--color-secondary)]"> ${postStats.draft} </p> </article> </div> </section>`;
