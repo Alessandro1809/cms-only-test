@@ -1,11 +1,11 @@
 ---
 import AdminLayout from "@/layouts/AdminLayout.astro";
 
-import StatusCards from "@/components/admin/dashboard/StatusCards.astro";
+import { StatusCards } from "@/components/admin/dashboard/react";
 import BlogDashboard from "@/components/admin/dashboard/BlogDashboard.astro";
 ---
 
 <AdminLayout title="Panel de administracion">
-    <StatusCards />
+    <StatusCards client:load />
     <BlogDashboard />
 </AdminLayout>

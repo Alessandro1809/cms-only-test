@@ -1,127 +1,9 @@
 import { e as createComponent, m as maybeRenderHead, r as renderTemplate, f as createAstro, h as addAttribute, k as renderComponent } from "../chunks/astro/server_B9nb4zjO.mjs";
 import { u as useCategories, g as getCategoryLabel, $ as $$AdminLayout } from "../chunks/useCategories_nZSCdxfO.mjs";
-import "clsx";
 import { jsx, jsxs } from "react/jsx-runtime";
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import "clsx";
 import { renderers } from "../renderers.mjs";
-const $$StatusCards = createComponent(async ($$result, $$props, $$slots) => {
-  const API_URL2 = "https://blog-api-rrttqa.fly.dev/api/v1";
-  async function fetchWithTimeout(url, timeout = 5e3) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
-    try {
-      const response = await fetch(url, { signal: controller.signal });
-      clearTimeout(timeoutId);
-      return response;
-    } catch (error) {
-      clearTimeout(timeoutId);
-      throw error;
-    }
-  }
-  async function fetchPostStats() {
-    try {
-      const publishedResponse = await fetchWithTimeout(
-        `${API_URL2}/posts?status=PUBLISHED`,
-        5e3
-      );
-      if (!publishedResponse.ok) {
-        console.error(`Failed to fetch published posts: ${publishedResponse.status}`);
-        return { published: 0, draft: 0 };
-      }
-      const publishedData = await publishedResponse.json();
-      const publishedCount = publishedData.total || 0;
-      const draftResponse = await fetchWithTimeout(`${API_URL2}/posts?status=DRAFT`, 5e3);
-      if (!draftResponse.ok) {
-        console.error(`Failed to fetch draft posts: ${draftResponse.status}`);
-        return { published: publishedCount, draft: 0 };
-      }
-      const draftData = await draftResponse.json();
-      const draftCount = draftData.total || 0;
-      return {
-        published: publishedCount,
-        draft: draftCount
-      };
-    } catch (error) {
-      console.error("Error fetching post stats:", error);
-      return {
-        published: 0,
-        draft: 0
-      };
-    }
-  }
-  async function fetchTotalViews() {
-    try {
-      const response = await fetchWithTimeout(`${API_URL2}/posts/stats/views`, 5e3);
-      if (!response.ok) {
-        return 0;
-      }
-      const data = await response.json();
-      return data.totalViews || 0;
-    } catch (error) {
-      console.error("Error fetching total views:", error);
-      return 0;
-    }
-  }
-  let postStats = { published: 0, draft: 0 };
-  let totalViews = 0;
-  try {
-    const statsPromise = Promise.race([
-      fetchPostStats(),
-      new Promise(
-        (_, reject) => setTimeout(() => reject(new Error("Timeout")), 8e3)
-      )
-    ]);
-    const viewsPromise = Promise.race([
-      fetchTotalViews(),
-      new Promise(
-        (_, reject) => setTimeout(() => reject(new Error("Timeout")), 8e3)
-      )
-    ]);
-    [postStats, totalViews] = await Promise.all([
-      statsPromise.catch(() => ({ published: 0, draft: 0 })),
-      viewsPromise.catch(() => 0)
-    ]);
-  } catch (error) {
-    console.error("Error loading dashboard stats:", error);
-  }
-  return renderTemplate`${maybeRenderHead()}<section class="container mx-auto max-w-12xl mt-10"> <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"> <article class="flex flex-col gap-2 rounded-lg glass p-4 border border-white/5"> <h3 class="font-semibold text-gray-400">Cantidad de vistas</h3> <p class="text-3xl font-bold text-[var(--color-secondary)]"> ${totalViews.toLocaleString()} </p> </article> <article class="flex flex-col gap-2 rounded-lg glass p-4 border border-white/5"> <h3 class="font-semibold text-gray-400">
-Cantidad de suscriptores
-</h3> <p class="text-3xl font-bold text-[var(--color-secondary)]">32</p> </article> <article class="flex flex-col gap-2 rounded-lg glass p-4 border border-white/5"> <h3 class="font-semibold text-gray-400">Posts publicados</h3> <p class="text-3xl font-bold text-[var(--color-secondary)]"> ${postStats.published} </p> </article> <article class="flex flex-col gap-2 rounded-lg glass p-4 border border-white/5"> <h3 class="font-semibold text-gray-400">Posts en borrador</h3> <p class="text-3xl font-bold text-[var(--color-secondary)]"> ${postStats.draft} </p> </article> </div> </section>`;
-}, "/Users/alessandro_diaz/Documents/Development/Personal/blog-standalone/src/components/admin/dashboard/StatusCards.astro", void 0);
-const $$AddIcon = createComponent(($$result, $$props, $$slots) => {
-  return renderTemplate`${maybeRenderHead()}<svg width="24" height="24" viewBox="0 0 24 24" fill="none"> <path fill-rule="evenodd" clip-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2C17.523 2 22 6.477 22 12C22 17.523 17.523 22 12 22C6.477 22 2 17.523 2 12ZM12 4C9.87827 4 7.84344 4.84285 6.34315 6.34315C4.84285 7.84344 4 9.87827 4 12C4 14.1217 4.84285 16.1566 6.34315 17.6569C7.84344 19.1571 9.87827 20 12 20C14.1217 20 16.1566 19.1571 17.6569 17.6569C19.1571 16.1566 20 14.1217 20 12C20 9.87827 19.1571 7.84344 17.6569 6.34315C16.1566 4.84285 14.1217 4 12 4Z" fill="currentColor"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M13 7C13 6.73478 12.8946 6.48043 12.7071 6.29289C12.5196 6.10536 12.2652 6 12 6C11.7348 6 11.4804 6.10536 11.2929 6.29289C11.1054 6.48043 11 6.73478 11 7V11H7C6.73478 11 6.48043 11.1054 6.29289 11.2929C6.10536 11.4804 6 11.7348 6 12C6 12.2652 6.10536 12.5196 6.29289 12.7071C6.48043 12.8946 6.73478 13 7 13H11V17C11 17.2652 11.1054 17.5196 11.2929 17.7071C11.4804 17.8946 11.7348 18 12 18C12.2652 18 12.5196 17.8946 12.7071 17.7071C12.8946 17.5196 13 17.2652 13 17V13H17C17.2652 13 17.5196 12.8946 17.7071 12.7071C17.8946 12.5196 18 12.2652 18 12C18 11.7348 17.8946 11.4804 17.7071 11.2929C17.5196 11.1054 17.2652 11 17 11H13V7Z" fill="currentColor"></path> </svg>`;
-}, "/Users/alessandro_diaz/Documents/Development/Personal/blog-standalone/src/components/ui/icons/AddIcon.astro", void 0);
-const $$Astro = createAstro();
-const $$Button = createComponent(($$result, $$props, $$slots) => {
-  const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
-  Astro2.self = $$Button;
-  const {
-    target = "_self",
-    width = "auto",
-    href = "contact",
-    text,
-    icon = false,
-    variant = "primary",
-    className = "",
-    ariaLabel = "Button",
-    justify = "center"
-  } = Astro2.props;
-  const baseStyles = `px-5 py-1 font-medium  transition-all duration-300 group flex justify-${justify} items-center gap-2 w-auto md:w-${width} hover:cursor-pointer`;
-  const variants = {
-    primary: "font-semibold md:text-sm text-sm lg:text-md sm:text-md bg-button-accent hover:bg-button-primary rounded-md py-3 text-primary hover:shadow-[0_0_6px_0] hover:shadow-secondary-light transition-all duration-400",
-    primaryShine: "font-semibold md:text-sm text-sm lg:text-md sm:text-md bg-button-primary hover:shadow-[0_0_10px_0] hover:shadow-secondary-light rounded-md py-3 text-primary transition-all duration-400",
-    primaryHeading: "font-semibold md:text-sm lg:text-md sm:text-md text-sm bg-button-primary hover:bg-button-secondary rounded-md py-3 text-primary",
-    secondary: "font-semibold md:text-sm text-sm lg:text-md sm:text-md hover:bg-button-primary rounded-md py-3 text-primary hover:shadow-[0_0_6px_0] hover:shadow-secondary-light transition-all duration-400 text-shadow-lg",
-    primaryrounded: "font-semibold md:text-sm text-sm lg:text-md sm:text-md bg-button-primary/60 hover:bg-button-secondary rounded-full py-3 text-primary hover:text-secondary hover:shadow-[0_0_6px_0] hover:shadow-secondary-light transition-all duration-400",
-    tertiary: "text-primary hover:border-secondary-light py-3 font-semibold hover:bg-secondary rounded-md",
-    white: "font-semibold md:text-sm text-sm lg:text-md sm:text-md bg-button-white hover:shadow-[0_0_10px_0] hover:shadow-white transition-all duration-400 rounded-md py-3 text-primary-blue",
-    "white-secondary": "font-semibold md:text-sm text-sm lg:text-md sm:text-md hover:bg-button-white rounded-md py-3 text-primary hover:text-primary-blue transition-all duration-400"
-  };
-  return renderTemplate`${maybeRenderHead()}<a${addAttribute(href, "href")}${addAttribute(ariaLabel, "aria-label")}${addAttribute(target, "target")}${addAttribute([baseStyles, variants[variant], className], "class:list")}> ${icon && renderTemplate`${renderComponent($$result, "AddIcon", $$AddIcon, {})}`} ${text} </a>`;
-}, "/Users/alessandro_diaz/Documents/Development/Personal/blog-standalone/src/components/ui/buttons/Button.astro", void 0);
-const $$DashboardHeader = createComponent(($$result, $$props, $$slots) => {
-  return renderTemplate`${maybeRenderHead()}<header class="container mx-auto max-w-12xl"> <div class="flex items-center justify-between py-4 px-12"> <h3 class="text-xl font-bold text-[#515B54]">Publicaciones del Blog</h3> ${renderComponent($$result, "Button", $$Button, { "href": "/admin/crear-publicacion", "text": "Agregar publicación", "variant": "primaryrounded", "icon": true })} </div> </header>`;
-}, "/Users/alessandro_diaz/Documents/Development/Personal/blog-standalone/src/components/admin/dashboard/DashboardHeader.astro", void 0);
 function useFilters() {
   const [filters, setFilters] = useState(() => {
     if (typeof window === "undefined") {
@@ -619,11 +501,106 @@ function PostsDashboard() {
     /* @__PURE__ */ jsx("div", { className: "mx-4 pb-4", children: /* @__PURE__ */ jsx(PostsList, { posts, loading, error }) })
   ] });
 }
+function StatusCards() {
+  const [stats, setStats] = useState({
+    published: 0,
+    draft: 0,
+    totalViews: 0
+  });
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const API_URL2 = "https://blog-api-rrttqa.fly.dev/api/v1";
+    async function fetchStats() {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5e3);
+        const publishedResponse = await fetch(
+          `${API_URL2}/posts?status=PUBLISHED`,
+          { signal: controller.signal }
+        );
+        const publishedData = publishedResponse.ok ? await publishedResponse.json() : { total: 0 };
+        const draftResponse = await fetch(
+          `${API_URL2}/posts?status=DRAFT`,
+          { signal: controller.signal }
+        );
+        const draftData = draftResponse.ok ? await draftResponse.json() : { total: 0 };
+        const viewsResponse = await fetch(
+          `${API_URL2}/posts/stats/views`,
+          { signal: controller.signal }
+        );
+        const viewsData = viewsResponse.ok ? await viewsResponse.json() : { totalViews: 0 };
+        clearTimeout(timeoutId);
+        setStats({
+          published: publishedData.total || 0,
+          draft: draftData.total || 0,
+          totalViews: viewsData.totalViews || 0
+        });
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchStats();
+  }, []);
+  return /* @__PURE__ */ jsx("section", { className: "container mx-auto max-w-12xl mt-10", children: /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4", children: [
+    /* @__PURE__ */ jsxs("article", { className: "flex flex-col gap-2 rounded-lg glass p-4 border border-white/5", children: [
+      /* @__PURE__ */ jsx("h3", { className: "font-semibold text-gray-400", children: "Cantidad de vistas" }),
+      /* @__PURE__ */ jsx("p", { className: "text-3xl font-bold text-[var(--color-secondary)]", children: loading ? "..." : stats.totalViews.toLocaleString() })
+    ] }),
+    /* @__PURE__ */ jsxs("article", { className: "flex flex-col gap-2 rounded-lg glass p-4 border border-white/5", children: [
+      /* @__PURE__ */ jsx("h3", { className: "font-semibold text-gray-400", children: "Cantidad de suscriptores" }),
+      /* @__PURE__ */ jsx("p", { className: "text-3xl font-bold text-[var(--color-secondary)]", children: "32" })
+    ] }),
+    /* @__PURE__ */ jsxs("article", { className: "flex flex-col gap-2 rounded-lg glass p-4 border border-white/5", children: [
+      /* @__PURE__ */ jsx("h3", { className: "font-semibold text-gray-400", children: "Posts publicados" }),
+      /* @__PURE__ */ jsx("p", { className: "text-3xl font-bold text-[var(--color-secondary)]", children: loading ? "..." : stats.published })
+    ] }),
+    /* @__PURE__ */ jsxs("article", { className: "flex flex-col gap-2 rounded-lg glass p-4 border border-white/5", children: [
+      /* @__PURE__ */ jsx("h3", { className: "font-semibold text-gray-400", children: "Posts en borrador" }),
+      /* @__PURE__ */ jsx("p", { className: "text-3xl font-bold text-[var(--color-secondary)]", children: loading ? "..." : stats.draft })
+    ] })
+  ] }) });
+}
+const $$AddIcon = createComponent(($$result, $$props, $$slots) => {
+  return renderTemplate`${maybeRenderHead()}<svg width="24" height="24" viewBox="0 0 24 24" fill="none"> <path fill-rule="evenodd" clip-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2C17.523 2 22 6.477 22 12C22 17.523 17.523 22 12 22C6.477 22 2 17.523 2 12ZM12 4C9.87827 4 7.84344 4.84285 6.34315 6.34315C4.84285 7.84344 4 9.87827 4 12C4 14.1217 4.84285 16.1566 6.34315 17.6569C7.84344 19.1571 9.87827 20 12 20C14.1217 20 16.1566 19.1571 17.6569 17.6569C19.1571 16.1566 20 14.1217 20 12C20 9.87827 19.1571 7.84344 17.6569 6.34315C16.1566 4.84285 14.1217 4 12 4Z" fill="currentColor"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M13 7C13 6.73478 12.8946 6.48043 12.7071 6.29289C12.5196 6.10536 12.2652 6 12 6C11.7348 6 11.4804 6.10536 11.2929 6.29289C11.1054 6.48043 11 6.73478 11 7V11H7C6.73478 11 6.48043 11.1054 6.29289 11.2929C6.10536 11.4804 6 11.7348 6 12C6 12.2652 6.10536 12.5196 6.29289 12.7071C6.48043 12.8946 6.73478 13 7 13H11V17C11 17.2652 11.1054 17.5196 11.2929 17.7071C11.4804 17.8946 11.7348 18 12 18C12.2652 18 12.5196 17.8946 12.7071 17.7071C12.8946 17.5196 13 17.2652 13 17V13H17C17.2652 13 17.5196 12.8946 17.7071 12.7071C17.8946 12.5196 18 12.2652 18 12C18 11.7348 17.8946 11.4804 17.7071 11.2929C17.5196 11.1054 17.2652 11 17 11H13V7Z" fill="currentColor"></path> </svg>`;
+}, "/Users/alessandro_diaz/Documents/Development/Personal/blog-standalone/src/components/ui/icons/AddIcon.astro", void 0);
+const $$Astro = createAstro();
+const $$Button = createComponent(($$result, $$props, $$slots) => {
+  const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
+  Astro2.self = $$Button;
+  const {
+    target = "_self",
+    width = "auto",
+    href = "contact",
+    text,
+    icon = false,
+    variant = "primary",
+    className = "",
+    ariaLabel = "Button",
+    justify = "center"
+  } = Astro2.props;
+  const baseStyles = `px-5 py-1 font-medium  transition-all duration-300 group flex justify-${justify} items-center gap-2 w-auto md:w-${width} hover:cursor-pointer`;
+  const variants = {
+    primary: "font-semibold md:text-sm text-sm lg:text-md sm:text-md bg-button-accent hover:bg-button-primary rounded-md py-3 text-primary hover:shadow-[0_0_6px_0] hover:shadow-secondary-light transition-all duration-400",
+    primaryShine: "font-semibold md:text-sm text-sm lg:text-md sm:text-md bg-button-primary hover:shadow-[0_0_10px_0] hover:shadow-secondary-light rounded-md py-3 text-primary transition-all duration-400",
+    primaryHeading: "font-semibold md:text-sm lg:text-md sm:text-md text-sm bg-button-primary hover:bg-button-secondary rounded-md py-3 text-primary",
+    secondary: "font-semibold md:text-sm text-sm lg:text-md sm:text-md hover:bg-button-primary rounded-md py-3 text-primary hover:shadow-[0_0_6px_0] hover:shadow-secondary-light transition-all duration-400 text-shadow-lg",
+    primaryrounded: "font-semibold md:text-sm text-sm lg:text-md sm:text-md bg-button-primary/60 hover:bg-button-secondary rounded-full py-3 text-primary hover:text-secondary hover:shadow-[0_0_6px_0] hover:shadow-secondary-light transition-all duration-400",
+    tertiary: "text-primary hover:border-secondary-light py-3 font-semibold hover:bg-secondary rounded-md",
+    white: "font-semibold md:text-sm text-sm lg:text-md sm:text-md bg-button-white hover:shadow-[0_0_10px_0] hover:shadow-white transition-all duration-400 rounded-md py-3 text-primary-blue",
+    "white-secondary": "font-semibold md:text-sm text-sm lg:text-md sm:text-md hover:bg-button-white rounded-md py-3 text-primary hover:text-primary-blue transition-all duration-400"
+  };
+  return renderTemplate`${maybeRenderHead()}<a${addAttribute(href, "href")}${addAttribute(ariaLabel, "aria-label")}${addAttribute(target, "target")}${addAttribute([baseStyles, variants[variant], className], "class:list")}> ${icon && renderTemplate`${renderComponent($$result, "AddIcon", $$AddIcon, {})}`} ${text} </a>`;
+}, "/Users/alessandro_diaz/Documents/Development/Personal/blog-standalone/src/components/ui/buttons/Button.astro", void 0);
+const $$DashboardHeader = createComponent(($$result, $$props, $$slots) => {
+  return renderTemplate`${maybeRenderHead()}<header class="container mx-auto max-w-12xl"> <div class="flex items-center justify-between py-4 px-12"> <h3 class="text-xl font-bold text-[#515B54]">Publicaciones del Blog</h3> ${renderComponent($$result, "Button", $$Button, { "href": "/admin/crear-publicacion", "text": "Agregar publicación", "variant": "primaryrounded", "icon": true })} </div> </header>`;
+}, "/Users/alessandro_diaz/Documents/Development/Personal/blog-standalone/src/components/admin/dashboard/DashboardHeader.astro", void 0);
 const $$BlogDashboard = createComponent(($$result, $$props, $$slots) => {
   return renderTemplate`${maybeRenderHead()}<section class="container mx-auto max-w-12xl mt-10"> <div class="glass rounded-xl border border-green-400"> ${renderComponent($$result, "DashboardHeader", $$DashboardHeader, {})} ${renderComponent($$result, "PostsDashboard", PostsDashboard, { "client:load": true, "client:component-hydration": "load", "client:component-path": "/Users/alessandro_diaz/Documents/Development/Personal/blog-standalone/src/components/admin/dashboard/react", "client:component-export": "PostsDashboard" })} </div> </section>`;
 }, "/Users/alessandro_diaz/Documents/Development/Personal/blog-standalone/src/components/admin/dashboard/BlogDashboard.astro", void 0);
 const $$Index = createComponent(($$result, $$props, $$slots) => {
-  return renderTemplate`${renderComponent($$result, "AdminLayout", $$AdminLayout, { "title": "Panel de administracion" }, { "default": ($$result2) => renderTemplate` ${renderComponent($$result2, "StatusCards", $$StatusCards, {})} ${renderComponent($$result2, "BlogDashboard", $$BlogDashboard, {})} ` })}`;
+  return renderTemplate`${renderComponent($$result, "AdminLayout", $$AdminLayout, { "title": "Panel de administracion" }, { "default": ($$result2) => renderTemplate` ${renderComponent($$result2, "StatusCards", StatusCards, { "client:load": true, "client:component-hydration": "load", "client:component-path": "@/components/admin/dashboard/react", "client:component-export": "StatusCards" })} ${renderComponent($$result2, "BlogDashboard", $$BlogDashboard, {})} ` })}`;
 }, "/Users/alessandro_diaz/Documents/Development/Personal/blog-standalone/src/pages/admin/index.astro", void 0);
 const $$file = "/Users/alessandro_diaz/Documents/Development/Personal/blog-standalone/src/pages/admin/index.astro";
 const $$url = "/admin";

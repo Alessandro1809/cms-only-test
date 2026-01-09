@@ -6,3 +6,4 @@ export { StatusSwitch } from './StatusSwitch';
 export { ActiveFilters } from './ActiveFilters';
 export { PostsList } from './PostsList';
 export { PostItem } from './PostItem';
+export { StatusCards } from './StatusCards';
