@@ -2,7 +2,7 @@ globalThis.process ??= {};
 globalThis.process.env ??= {};
 import { r as renderers } from "./chunks/_@astro-renderers_BkKWZVaW.mjs";
 import { c as createExports, s as serverEntrypointModule } from "./chunks/_@astrojs-ssr-adapter_CFlosgc9.mjs";
-import { manifest } from "./manifest_D9xlu-ez.mjs";
+import { manifest } from "./manifest_zZyDn2WK.mjs";
 const serverIslandMap = /* @__PURE__ */ new Map();
 ;
 const _page0 = () => import("./pages/_image.astro.mjs");

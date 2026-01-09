@@ -269,7 +269,7 @@ const $$Index = createComponent(async ($$result, $$props, $$slots) => {
   }, "style")}></div> <div class="z-10 relative w-full max-w-md px-4"> <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 shadow-2xl"> <div class="mb-8 text-center"> <h1 class="text-3xl font-bold text-white mb-2">
 Bienvenido!
 </h1> <p class="text-gray-400">
-Inicia sesión para gestionar el contenido del Blog
+Inicia sesión para gestionar el contenido del blog
 </p> </div> <div class="flex justify-center"> ${renderComponent($$result, "SignIn", $$SignIn, { "routing": "hash", "forceRedirectUrl": "/admin", "appearance": {
     baseTheme: distExports.dark,
     elements: {
