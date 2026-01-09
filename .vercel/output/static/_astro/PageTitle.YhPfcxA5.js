@@ -1,1 +1,0 @@
-import{j as s}from"./jsx-runtime.D_zvdyIk.js";import{r as t}from"./index.DB02PGg6.js";function c(){const[e,o]=t.useState(!1);return t.useEffect(()=>{const r=localStorage.getItem("editPostId");o(!!r)},[]),s.jsx("h1",{className:"text-2xl font-bold mb-4 text-[var(--color-secondary)]",children:e?"Editar Publicación":"Crear Publicación"})}export{c as PageTitle};
