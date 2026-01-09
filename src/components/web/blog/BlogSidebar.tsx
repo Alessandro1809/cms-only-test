@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Post } from './types';
 import { AuthorBadge } from './AuthorBadge';
 import { BlogCard } from './BlogCard';
@@ -9,6 +9,11 @@ interface BlogSidebarProps {
 }
 
 export const BlogSidebar: React.FC<BlogSidebarProps> = ({ relatedPosts, currentPost }) => {
+  const [currentUrl, setCurrentUrl] = useState('');
+
+  useEffect(() => {
+    setCurrentUrl(window.location.href);
+  }, []);
 
   return (
     <aside className="space-y-8 mt-12">
@@ -17,7 +22,7 @@ export const BlogSidebar: React.FC<BlogSidebarProps> = ({ relatedPosts, currentP
         <div className="flex justify-center gap-4">
           {/* LinkedIn */}
           <a
-            href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
+            href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentUrl)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center w-12 h-12 rounded-full bg-black hover:bg-[#004182] transition-colors"
@@ -30,7 +35,7 @@ export const BlogSidebar: React.FC<BlogSidebarProps> = ({ relatedPosts, currentP
 
           {/* X (Twitter) */}
           <a
-            href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}&text=${encodeURIComponent(currentPost.title)}${currentPost.excerpt ? `&via=${encodeURIComponent(currentPost.excerpt.substring(0, 100))}` : ''}`}
+            href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(currentPost.title)}${currentPost.excerpt ? `&via=${encodeURIComponent(currentPost.excerpt.substring(0, 100))}` : ''}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center w-12 h-12 rounded-full bg-black hover:bg-gray-800 transition-colors"
@@ -43,7 +48,7 @@ export const BlogSidebar: React.FC<BlogSidebarProps> = ({ relatedPosts, currentP
 
           {/* Facebook */}
           <a
-            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}&quote=${encodeURIComponent(currentPost.title + (currentPost.excerpt ? ' - ' + currentPost.excerpt : ''))}`}
+            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}&quote=${encodeURIComponent(currentPost.title + (currentPost.excerpt ? ' - ' + currentPost.excerpt : ''))}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center w-12 h-12 rounded-full bg-black transition-colors"
