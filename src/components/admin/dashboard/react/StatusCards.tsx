@@ -13,6 +13,7 @@ export function StatusCards() {
     totalViews: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const API_URL = import.meta.env.PUBLIC_API_URL || 'https://blog-api-rrttqa.fly.dev/api/v1';
@@ -26,22 +27,34 @@ export function StatusCards() {
         const publishedResponse = await fetch(
           `${API_URL}/posts?status=PUBLISHED`,
           { signal: controller.signal }
-        );
-        const publishedData = publishedResponse.ok ? await publishedResponse.json() : { total: 0 };
+        ).catch(err => {
+          console.error('Fetch published error:', err);
+          return null;
+        });
+        
+        const publishedData = publishedResponse?.ok ? await publishedResponse.json() : { total: 0 };
 
         // Fetch draft posts
         const draftResponse = await fetch(
           `${API_URL}/posts?status=DRAFT`,
           { signal: controller.signal }
-        );
-        const draftData = draftResponse.ok ? await draftResponse.json() : { total: 0 };
+        ).catch(err => {
+          console.error('Fetch draft error:', err);
+          return null;
+        });
+        
+        const draftData = draftResponse?.ok ? await draftResponse.json() : { total: 0 };
 
         // Fetch total views
         const viewsResponse = await fetch(
           `${API_URL}/posts/stats/views`,
           { signal: controller.signal }
-        );
-        const viewsData = viewsResponse.ok ? await viewsResponse.json() : { totalViews: 0 };
+        ).catch(err => {
+          console.error('Fetch views error:', err);
+          return null;
+        });
+        
+        const viewsData = viewsResponse?.ok ? await viewsResponse.json() : { totalViews: 0 };
 
         clearTimeout(timeoutId);
 
@@ -52,6 +65,7 @@ export function StatusCards() {
         });
       } catch (error) {
         console.error('Error fetching stats:', error);
+        setError(error instanceof Error ? error.message : 'Unknown error');
       } finally {
         setLoading(false);
       }
