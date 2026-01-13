@@ -9,9 +9,14 @@ import clerk from '@clerk/astro';
 export default defineConfig({
     output: "server",
     vite: {
-        plugins: [tailwindcss()]
+        plugins: [tailwindcss()],
+        resolve: {
+            alias: import.meta.env.PROD ? {
+                "react-dom/server": "react-dom/server.edge"
+            } : undefined
+        }
     },
 
-    integrations: [react(),clerk()],
+    integrations: [react(), clerk()],
     adapter: vercel()
 });
