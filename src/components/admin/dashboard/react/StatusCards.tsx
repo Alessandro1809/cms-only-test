@@ -7,8 +7,6 @@ interface Stats {
 }
 
 export function StatusCards() {
-  console.log('[StatusCards] Component rendering...');
-  
   const [stats, setStats] = useState<Stats>({
     published: 0,
     draft: 0,
@@ -18,7 +16,6 @@ export function StatusCards() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('[StatusCards] useEffect running...');
     const API_URL = import.meta.env.PUBLIC_API_URL || 'https://blog-api-rrttqa.fly.dev/api/v1';
 
     async function fetchStats() {

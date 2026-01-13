@@ -33,111 +33,122 @@ const getYoutubeEmbedUrl = (url: string): string => {
   return url;
 };
 
-// Función para convertir el contenido de Tiptap a formato de bloques estructurado
-export const formatTiptapContent = (tiptapJson: any) => {
+// Función para convertir el contenido de Tiptap a Markdown puro
+export const formatTiptapContent = (tiptapJson: any): string => {
   if (!tiptapJson || !tiptapJson.content) {
-    return { blocks: [] };
+    return '';
   }
 
-  const blocks: any[] = [];
+  const markdownParts: string[] = [];
 
-  const processNode = (node: any) => {
+  const processNode = (node: any): string => {
     switch (node.type) {
       case 'paragraph':
-        const paragraphText = extractText(node);
-        if (paragraphText.trim()) {
-          blocks.push({
-            type: 'paragraph',
-            content: paragraphText,
-          });
-        }
-        break;
+        const paragraphText = extractTextWithMarks(node);
+        return paragraphText.trim() ? paragraphText + '\n' : '';
 
       case 'heading':
-        const headingText = extractText(node);
-        blocks.push({
-          type: 'heading',
-          level: node.attrs?.level || 1,
-          content: headingText,
-        });
-        break;
+        const headingText = extractTextWithMarks(node);
+        const level = node.attrs?.level || 1;
+        const hashes = '#'.repeat(level);
+        return `${hashes} ${headingText}\n`;
 
       case 'codeBlock':
         const codeText = extractText(node);
-        blocks.push({
-          type: 'code',
-          language: node.attrs?.language || 'javascript',
-          content: codeText,
-        });
-        break;
+        const language = node.attrs?.language || '';
+        return `\`\`\`${language}\n${codeText}\n\`\`\`\n`;
 
       case 'bulletList':
         const bulletItems = extractListItems(node);
-        blocks.push({
-          type: 'bulletList',
-          items: bulletItems,
-        });
-        break;
+        return bulletItems.map(item => `- ${item}`).join('\n') + '\n';
 
       case 'orderedList':
         const orderedItems = extractListItems(node);
-        blocks.push({
-          type: 'orderedList',
-          items: orderedItems,
-        });
-        break;
+        return orderedItems.map((item, i) => `${i + 1}. ${item}`).join('\n') + '\n';
 
       case 'blockquote':
-        const quoteText = extractText(node);
-        blocks.push({
-          type: 'blockquote',
-          content: quoteText,
-        });
-        break;
+        const quoteText = extractTextWithMarks(node);
+        return `> ${quoteText}\n`;
 
       case 'image':
-        blocks.push({
-          type: 'image',
-          src: node.attrs?.src || '',
-          alt: node.attrs?.alt || '',
-          title: node.attrs?.title || '',
-        });
-        break;
+        const src = node.attrs?.src || '';
+        const alt = node.attrs?.alt || '';
+        const title = node.attrs?.title ? ` "${node.attrs.title}"` : '';
+        return `![${alt}](${src}${title})\n`;
 
       case 'horizontalRule':
-        blocks.push({
-          type: 'divider',
-        });
-        break;
+        return '---\n';
 
       case 'youtube':
-        blocks.push({
-          type: 'youtube',
-          src: getYoutubeEmbedUrl(node.attrs?.src || ''),
-          width: node.attrs?.width,
-          height: node.attrs?.height,
-        });
-        break;
+        const embedUrl = getYoutubeEmbedUrl(node.attrs?.src || '');
+        return `[![Video](https://img.youtube.com/vi/${extractYoutubeId(node.attrs?.src || '')}/0.jpg)](${embedUrl})\n`;
 
       default:
-        // Para nodos desconocidos, intentar extraer texto
-        const text = extractText(node);
-        if (text.trim()) {
-          blocks.push({
-            type: 'paragraph',
-            content: text,
-          });
-        }
-        break;
+        const text = extractTextWithMarks(node);
+        return text.trim() ? text + '\n' : '';
     }
   };
 
-  // Procesar todos los nodos del contenido
   tiptapJson.content.forEach((node: any) => {
-    processNode(node);
+    const markdown = processNode(node);
+    if (markdown) {
+      markdownParts.push(markdown);
+    }
   });
 
-  return { blocks };
+  return markdownParts.join('\n');
+};
+
+// Función auxiliar para extraer ID de YouTube
+const extractYoutubeId = (url: string): string => {
+  if (!url) return '';
+  const watchMatch = url.match(/[?&]v=([^&]+)/);
+  if (watchMatch) return watchMatch[1];
+  const shortMatch = url.match(/youtu\.be\/([^?&]+)/);
+  if (shortMatch) return shortMatch[1];
+  const embedMatch = url.match(/embed\/([^?&]+)/);
+  if (embedMatch) return embedMatch[1];
+  return '';
+};
+
+// Función auxiliar para extraer texto con marcas (bold, italic, code, links)
+const extractTextWithMarks = (node: any): string => {
+  if (node.type === 'text') {
+    let text = node.text || '';
+    
+    if (node.marks && Array.isArray(node.marks)) {
+      node.marks.forEach((mark: any) => {
+        switch (mark.type) {
+          case 'bold':
+          case 'strong':
+            text = `**${text}**`;
+            break;
+          case 'italic':
+          case 'em':
+            text = `*${text}*`;
+            break;
+          case 'code':
+            text = `\`${text}\``;
+            break;
+          case 'strike':
+            text = `~~${text}~~`;
+            break;
+          case 'link':
+            const href = mark.attrs?.href || '';
+            text = `[${text}](${href})`;
+            break;
+        }
+      });
+    }
+    
+    return text;
+  }
+
+  if (node.content && Array.isArray(node.content)) {
+    return node.content.map((child: any) => extractTextWithMarks(child)).join('');
+  }
+
+  return '';
 };
 
 // Función auxiliar para extraer texto de un nodo
@@ -160,7 +171,7 @@ const extractListItems = (listNode: any): string[] => {
   return listNode.content.map((listItem: any) => {
     if (listItem.type === 'listItem' && listItem.content) {
       return listItem.content
-        .map((node: any) => extractText(node))
+        .map((node: any) => extractTextWithMarks(node))
         .join('')
         .trim();
     }
