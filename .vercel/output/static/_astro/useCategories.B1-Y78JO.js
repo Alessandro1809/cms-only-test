@@ -1,1 +1,0 @@
-import{r as e}from"./index.DB02PGg6.js";import{C as u,a as n}from"./categoryLabels.CBjB4mnr.js";function g(){const[s,a]=e.useState([]),[o,r]=e.useState(!0);return e.useEffect(()=>{const i=u.map(t=>({value:t,label:n[t]}));a(i),r(!1)},[]),{categories:s,loading:o}}export{g as u};
