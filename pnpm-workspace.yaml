@@ -1,3 +1,7 @@
 ignoredBuiltDependencies:
   - esbuild
   - workerd
+
+onlyBuiltDependencies:
+  - '@clerk/shared'
+  - sharp
