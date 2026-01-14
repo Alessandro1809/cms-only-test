@@ -33,8 +33,8 @@ const getYoutubeEmbedUrl = (url: string): string => {
   return url;
 };
 
-// Función para convertir el contenido de Tiptap a Markdown puro
-export const formatTiptapContent = (tiptapJson: any): string => {
+// Función para convertir el contenido de Tiptap a Markdown
+export const formatTiptapToMarkdown = (tiptapJson: any): string => {
   if (!tiptapJson || !tiptapJson.content) {
     return '';
   }
@@ -59,11 +59,11 @@ export const formatTiptapContent = (tiptapJson: any): string => {
         return `\`\`\`${language}\n${codeText}\n\`\`\`\n`;
 
       case 'bulletList':
-        const bulletItems = extractListItems(node);
+        const bulletItems = extractListItemsWithMarks(node);
         return bulletItems.map(item => `- ${item}`).join('\n') + '\n';
 
       case 'orderedList':
-        const orderedItems = extractListItems(node);
+        const orderedItems = extractListItemsWithMarks(node);
         return orderedItems.map((item, i) => `${i + 1}. ${item}`).join('\n') + '\n';
 
       case 'blockquote':
@@ -80,8 +80,8 @@ export const formatTiptapContent = (tiptapJson: any): string => {
         return '---\n';
 
       case 'youtube':
-        const embedUrl = getYoutubeEmbedUrl(node.attrs?.src || '');
-        return `[![Video](https://img.youtube.com/vi/${extractYoutubeId(node.attrs?.src || '')}/0.jpg)](${embedUrl})\n`;
+        const videoSrc = getYoutubeEmbedUrl(node.attrs?.src || '');
+        return `<iframe src="${videoSrc}" width="${node.attrs?.width || 560}" height="${node.attrs?.height || 315}" frameborder="0" allowfullscreen></iframe>\n`;
 
       default:
         const text = extractTextWithMarks(node);
@@ -99,25 +99,13 @@ export const formatTiptapContent = (tiptapJson: any): string => {
   return markdownParts.join('\n');
 };
 
-// Función auxiliar para extraer ID de YouTube
-const extractYoutubeId = (url: string): string => {
-  if (!url) return '';
-  const watchMatch = url.match(/[?&]v=([^&]+)/);
-  if (watchMatch) return watchMatch[1];
-  const shortMatch = url.match(/youtu\.be\/([^?&]+)/);
-  if (shortMatch) return shortMatch[1];
-  const embedMatch = url.match(/embed\/([^?&]+)/);
-  if (embedMatch) return embedMatch[1];
-  return '';
-};
-
-// Función auxiliar para extraer texto con marcas (bold, italic, code, links)
+// Función para extraer texto con marcas (bold, italic, code, links)
 const extractTextWithMarks = (node: any): string => {
   if (node.type === 'text') {
     let text = node.text || '';
     
     if (node.marks && Array.isArray(node.marks)) {
-      node.marks.forEach((mark: any) => {
+      for (const mark of node.marks) {
         switch (mark.type) {
           case 'bold':
           case 'strong':
@@ -138,7 +126,7 @@ const extractTextWithMarks = (node: any): string => {
             text = `[${text}](${href})`;
             break;
         }
-      });
+      }
     }
     
     return text;
@@ -149,6 +137,21 @@ const extractTextWithMarks = (node: any): string => {
   }
 
   return '';
+};
+
+// Función auxiliar para extraer items de listas con marcas
+const extractListItemsWithMarks = (listNode: any): string[] => {
+  if (!listNode.content) return [];
+
+  return listNode.content.map((listItem: any) => {
+    if (listItem.type === 'listItem' && listItem.content) {
+      return listItem.content
+        .map((node: any) => extractTextWithMarks(node))
+        .join('')
+        .trim();
+    }
+    return '';
+  }).filter((item: string) => item.length > 0);
 };
 
 // Función auxiliar para extraer texto de un nodo
@@ -164,28 +167,57 @@ const extractText = (node: any): string => {
   return '';
 };
 
-// Función auxiliar para extraer items de listas
-const extractListItems = (listNode: any): string[] => {
-  if (!listNode.content) return [];
+// Función para generar el contenido Markdown con frontmatter YAML
+const generateMarkdownWithFrontmatter = (postData: any): string => {
+  const markdownBody = formatTiptapToMarkdown(postData.content);
+  
+  // Construir frontmatter YAML
+  const frontmatterLines: string[] = [
+    '---',
+    `title: "${escapeYamlString(postData.title)}"`,
+    `date: "${new Date().toISOString()}"`,
+    `draft: ${postData.status === 'DRAFT'}`,
+  ];
 
-  return listNode.content.map((listItem: any) => {
-    if (listItem.type === 'listItem' && listItem.content) {
-      return listItem.content
-        .map((node: any) => extractTextWithMarks(node))
-        .join('')
-        .trim();
-    }
-    return '';
-  }).filter((item: string) => item.length > 0);
+  if (postData.excerpt) {
+    frontmatterLines.push(`excerpt: "${escapeYamlString(postData.excerpt)}"`);
+  }
+
+  if (postData.tags && postData.tags.length > 0) {
+    frontmatterLines.push(`tags: [${postData.tags.map((t: string) => `"${escapeYamlString(t)}"`).join(', ')}]`);
+  }
+
+  if (postData.category) {
+    frontmatterLines.push(`category: "${escapeYamlString(postData.category)}"`);
+  }
+
+  if (postData.featuredImage) {
+    frontmatterLines.push(`featured: true`);
+  } else {
+    frontmatterLines.push(`featured: false`);
+  }
+
+  frontmatterLines.push('---');
+  frontmatterLines.push('');
+
+  return frontmatterLines.join('\n') + markdownBody;
+};
+
+// Función para escapar caracteres especiales en strings YAML
+const escapeYamlString = (str: string): string => {
+  if (!str) return '';
+  return str.replace(/"/g, '\\"').replace(/\n/g, ' ');
 };
 
 // Función para formatear el post completo antes de enviarlo al backend
 export const formatPostForBackend = (postData: any) => {
+  const markdownContent = generateMarkdownWithFrontmatter(postData);
+  
   const formatted: any = {
     title: postData.title,
     slug: postData.slug,
     excerpt: postData.excerpt,
-    content: formatTiptapContent(postData.content),
+    content: markdownContent,
     categorie: postData.category,
     tags: postData.tags,
     status: postData.status || 'DRAFT',
