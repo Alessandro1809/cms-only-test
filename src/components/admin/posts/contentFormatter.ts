@@ -230,6 +230,7 @@ export const formatPostForBackend = (postData: any) => {
     categorie: postData.category,
     tags: postData.tags,
     status: postData.status || 'DRAFT',
+    featured: postData.featured || false, // Enviar como boolean, por defecto false
   };
 
   if (postData.featuredImage) {

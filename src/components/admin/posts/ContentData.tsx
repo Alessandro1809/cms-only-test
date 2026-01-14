@@ -20,6 +20,11 @@ export const ContentData = () => {
     updatePostData({ [fieldName]: value })
   }
 
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target
+    updatePostData({ [name]: checked })
+  }
+
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target
     updatePostData({ [name]: value })
@@ -176,6 +181,26 @@ export const ContentData = () => {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Destacado */}
+        <div>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              id="featured"
+              name="featured"
+              checked={postData.featured || false}
+              onChange={handleCheckboxChange}
+              className="w-5 h-5 text-secondary-light bg-gray-800 border-gray-600 rounded focus:ring-secondary-light focus:ring-2 cursor-pointer"
+            />
+            <span className="text-sm font-semibold text-gray-400">
+              Destacar este post
+            </span>
+          </label>
+          <p className="text-xs text-gray-500 mt-1 ml-8">
+            Los posts destacados aparecerán en la sección principal del blog
+          </p>
         </div>
       </div>
     </div>

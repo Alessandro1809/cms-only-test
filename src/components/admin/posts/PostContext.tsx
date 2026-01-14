@@ -11,6 +11,7 @@ interface PostData {
   tags: string[];
   content: any;
   featuredImage?: string;
+  featured?: boolean;
   status?: 'DRAFT' | 'PUBLISHED';
 }
 
@@ -29,6 +30,7 @@ const initialPostData: PostData = {
   category: '',
   tags: [],
   content: null,
+  featured: false,
 };
 
 const PostContext = createContext<PostContextType | undefined>(undefined);
