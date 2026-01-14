@@ -1,0 +1,43 @@
+---
+interface Props {
+  href?: string;
+  text: string;
+  variant?: 'primaryrounded' | 'primaryHeading';
+  icon?: boolean;
+}
+
+const { href, text, variant = 'primaryrounded', icon = false } = Astro.props;
+---
+
+{href ? (
+  <a 
+    href={href}
+    class={`px-6 py-3 font-semibold rounded-full transition-all ${
+      variant === 'primaryrounded' 
+        ? 'bg-secondary-light text-primary hover:bg-secondary-light/80' 
+        : 'bg-secondary-light text-primary hover:bg-secondary-light/80'
+    }`}
+  >
+    {icon && (
+      <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+    )}
+    {text}
+  </a>
+) : (
+  <button 
+    class={`px-6 py-3 font-semibold rounded-full transition-all ${
+      variant === 'primaryrounded' 
+        ? 'bg-secondary-light text-primary hover:bg-secondary-light/80' 
+        : 'bg-secondary-light text-primary hover:bg-secondary-light/80'
+    }`}
+  >
+    {icon && (
+      <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+    )}
+    {text}
+  </button>
+)}
