@@ -33,7 +33,7 @@ const getYoutubeEmbedUrl = (url: string): string => {
   return url;
 };
 
-// Función para convertir el contenido de Tiptap a Markdown (sin saltos de línea)
+// Función para convertir el contenido de Tiptap a Markdown
 export const formatTiptapToMarkdown = (tiptapJson: any): string => {
   if (!tiptapJson || !tiptapJson.content) {
     return '';
@@ -56,7 +56,7 @@ export const formatTiptapToMarkdown = (tiptapJson: any): string => {
       case 'codeBlock':
         const codeText = extractText(node);
         const language = node.attrs?.language || '';
-        return `\`\`\`${language} ${codeText} \`\`\``;
+        return `\`\`\`${language}${codeText}\`\`\``;
 
       case 'bulletList':
         const bulletItems = extractListItemsWithMarks(node);
@@ -96,7 +96,8 @@ export const formatTiptapToMarkdown = (tiptapJson: any): string => {
     }
   });
 
-  return markdownParts.join('');
+  // Unir con saltos de línea reales para separar bloques
+  return markdownParts.join('\n\n');
 };
 
 // Función para extraer texto con marcas (bold, italic, code, links)
@@ -167,33 +168,33 @@ const extractText = (node: any): string => {
   return '';
 };
 
-// Función para generar el contenido Markdown con frontmatter YAML (todo en una línea)
+// Función para generar el contenido Markdown con frontmatter YAML
 const generateMarkdownWithFrontmatter = (postData: any): string => {
   const markdownBody = formatTiptapToMarkdown(postData.content);
   
-  // Construir frontmatter YAML - formato exacto como el ejemplo que funciona
-  let frontmatter = '---';
-  frontmatter += `title: "${sanitizeString(postData.title)}"`;
-  frontmatter += `date: "${new Date().toISOString()}"`;
-  frontmatter += `draft: ${postData.status === 'DRAFT'}`;
+  // Construir frontmatter YAML con saltos de línea reales
+  const frontmatterLines: string[] = ['---'];
+  
+  frontmatterLines.push(`title: "${sanitizeString(postData.title)}"`);
+  frontmatterLines.push(`date: "${new Date().toISOString()}"`);
+  frontmatterLines.push(`draft: ${postData.status === 'DRAFT'}`);
 
   if (postData.excerpt) {
-    frontmatter += `excerpt: "${sanitizeString(postData.excerpt)}"`;
+    frontmatterLines.push(`excerpt: "${sanitizeString(postData.excerpt)}"`);
   }
 
   if (postData.tags && postData.tags.length > 0) {
-    frontmatter += `tags: [${postData.tags.map((t: string) => `"${sanitizeString(t)}"`).join(', ')}]`;
+    frontmatterLines.push(`tags: [${postData.tags.map((t: string) => `"${sanitizeString(t)}"`).join(', ')}]`);
   }
 
   if (postData.category) {
-    frontmatter += `category: "${sanitizeString(postData.category)}"`;
+    frontmatterLines.push(`category: "${sanitizeString(postData.category)}"`);
   }
 
-  frontmatter += `featured: ${postData.featuredImage ? 'true' : 'false'}`;
+  frontmatterLines.push(`featured: ${postData.featuredImage ? 'true' : 'false'}`);
+  frontmatterLines.push('---');
 
-  frontmatter += '---';
-
-  return frontmatter + markdownBody;
+  return frontmatterLines.join('\n') + '\n\n' + markdownBody;
 };
 
 // Función para sanitizar strings - reemplaza comillas dobles por simples para evitar problemas de escape
