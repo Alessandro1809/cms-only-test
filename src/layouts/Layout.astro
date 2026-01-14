@@ -1,7 +1,6 @@
 ---
 import "../styles/global.css";
-import Header from "../components/web/layout/Header.astro";
-import Footer from "../components/web/layout/Footer.astro";
+
 import ClientRouter from "astro/components/ClientRouter.astro";
 ---
 
@@ -16,9 +15,9 @@ import ClientRouter from "astro/components/ClientRouter.astro";
 		<ClientRouter />
 	</head>
 	<body>
-		<Header />
+		
 		<slot />
-		<Footer />
+		
 	</body>
 </html>
 
