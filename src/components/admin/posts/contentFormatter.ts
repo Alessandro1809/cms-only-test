@@ -49,6 +49,7 @@ export const formatTiptapContent = (tiptapJson: any) => {
           blocks.push({
             type: 'paragraph',
             content: paragraphText,
+            attrs: node.attrs || {}, // Guardar todos los atributos incluyendo alineación
           });
         }
         break;
@@ -59,6 +60,7 @@ export const formatTiptapContent = (tiptapJson: any) => {
           type: 'heading',
           level: node.attrs?.level || 1,
           content: headingText,
+          attrs: node.attrs || {}, // Guardar todos los atributos incluyendo alineación
         });
         break;
 
@@ -174,10 +176,14 @@ export const convertBlocksToHTML = (blocks: any[]) => {
     switch (block.type) {
       case 'heading':
         const level = block.level || 1;
-        return `<h${level}>${block.content}</h${level}>`;
+        const alignment = block.attrs?.textAlign || block.attrs?.alignment || 'left';
+        const alignmentClass = alignment !== 'left' ? ` style="text-align: ${alignment}"` : '';
+        return `<h${level}${alignmentClass}>${block.content}</h${level}>`;
       
       case 'paragraph':
-        return `<p>${block.content}</p>`;
+        const paragraphAlignment = block.attrs?.textAlign || block.attrs?.alignment || 'left';
+        const paragraphAlignmentClass = paragraphAlignment !== 'left' ? ` style="text-align: ${paragraphAlignment}"` : '';
+        return `<p${paragraphAlignmentClass}>${block.content}</p>`;
       
       case 'code':
         return `<pre><code class="language-${block.language || 'javascript'}">${block.content}</code></pre>`;
