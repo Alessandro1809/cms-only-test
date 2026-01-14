@@ -33,126 +33,111 @@ const getYoutubeEmbedUrl = (url: string): string => {
   return url;
 };
 
-// Función para convertir el contenido de Tiptap a Markdown
-export const formatTiptapToMarkdown = (tiptapJson: any): string => {
+// Función para convertir el contenido de Tiptap a formato de bloques estructurado
+export const formatTiptapContent = (tiptapJson: any) => {
   if (!tiptapJson || !tiptapJson.content) {
-    return '';
+    return { blocks: [] };
   }
 
-  const markdownParts: string[] = [];
+  const blocks: any[] = [];
 
-  const processNode = (node: any): string => {
+  const processNode = (node: any) => {
     switch (node.type) {
       case 'paragraph':
-        const paragraphText = extractTextWithMarks(node);
-        return paragraphText.trim() || '';
+        const paragraphText = extractText(node);
+        if (paragraphText.trim()) {
+          blocks.push({
+            type: 'paragraph',
+            content: paragraphText,
+          });
+        }
+        break;
 
       case 'heading':
-        const headingText = extractTextWithMarks(node);
-        const level = node.attrs?.level || 1;
-        const hashes = '#'.repeat(level);
-        return `${hashes} ${headingText}`;
+        const headingText = extractText(node);
+        blocks.push({
+          type: 'heading',
+          level: node.attrs?.level || 1,
+          content: headingText,
+        });
+        break;
 
       case 'codeBlock':
         const codeText = extractText(node);
-        const language = node.attrs?.language || '';
-        return `\`\`\`${language}${codeText}\`\`\``;
+        blocks.push({
+          type: 'code',
+          language: node.attrs?.language || 'javascript',
+          content: codeText,
+        });
+        break;
 
       case 'bulletList':
-        const bulletItems = extractListItemsWithMarks(node);
-        return bulletItems.map(item => `- ${item}`).join('');
+        const bulletItems = extractListItems(node);
+        blocks.push({
+          type: 'bulletList',
+          items: bulletItems,
+        });
+        break;
 
       case 'orderedList':
-        const orderedItems = extractListItemsWithMarks(node);
-        return orderedItems.map((item, i) => `${i + 1}. ${item}`).join('');
+        const orderedItems = extractListItems(node);
+        blocks.push({
+          type: 'orderedList',
+          items: orderedItems,
+        });
+        break;
 
       case 'blockquote':
-        const quoteText = extractTextWithMarks(node);
-        return `> ${quoteText}`;
+        const quoteText = extractText(node);
+        blocks.push({
+          type: 'blockquote',
+          content: quoteText,
+        });
+        break;
 
       case 'image':
-        const src = node.attrs?.src || '';
-        const alt = node.attrs?.alt || '';
-        const title = node.attrs?.title ? ` "${node.attrs.title}"` : '';
-        return `![${alt}](${src}${title})`;
+        blocks.push({
+          type: 'image',
+          src: node.attrs?.src || '',
+          alt: node.attrs?.alt || '',
+          title: node.attrs?.title || '',
+        });
+        break;
 
       case 'horizontalRule':
-        return '---';
+        blocks.push({
+          type: 'divider',
+        });
+        break;
 
       case 'youtube':
-        const videoSrc = getYoutubeEmbedUrl(node.attrs?.src || '');
-        return `<iframe src="${videoSrc}" width="${node.attrs?.width || 560}" height="${node.attrs?.height || 315}" frameborder="0" allowfullscreen></iframe>`;
+        blocks.push({
+          type: 'youtube',
+          src: getYoutubeEmbedUrl(node.attrs?.src || ''),
+          width: node.attrs?.width,
+          height: node.attrs?.height,
+        });
+        break;
 
       default:
-        const text = extractTextWithMarks(node);
-        return text.trim() || '';
+        // Para nodos desconocidos, intentar extraer texto
+        const text = extractText(node);
+        if (text.trim()) {
+          blocks.push({
+            type: 'paragraph',
+            content: text,
+          });
+        }
+        break;
     }
   };
 
+  // Procesar todos los nodos del contenido
   tiptapJson.content.forEach((node: any) => {
-    const markdown = processNode(node);
-    if (markdown) {
-      markdownParts.push(markdown);
-    }
+    processNode(node);
   });
 
-  // Unir con saltos de línea reales para separar bloques
-  return markdownParts.join('\n\n');
-};
-
-// Función para extraer texto con marcas (bold, italic, code, links)
-const extractTextWithMarks = (node: any): string => {
-  if (node.type === 'text') {
-    let text = node.text || '';
-    
-    if (node.marks && Array.isArray(node.marks)) {
-      for (const mark of node.marks) {
-        switch (mark.type) {
-          case 'bold':
-          case 'strong':
-            text = `**${text}**`;
-            break;
-          case 'italic':
-          case 'em':
-            text = `*${text}*`;
-            break;
-          case 'code':
-            text = `\`${text}\``;
-            break;
-          case 'strike':
-            text = `~~${text}~~`;
-            break;
-          case 'link':
-            const href = mark.attrs?.href || '';
-            text = `[${text}](${href})`;
-            break;
-        }
-      }
-    }
-    
-    return text;
-  }
-
-  if (node.content && Array.isArray(node.content)) {
-    return node.content.map((child: any) => extractTextWithMarks(child)).join('');
-  }
-
-  return '';
-};
-
-// Función auxiliar para extraer items de listas con marcas
-const extractListItemsWithMarks = (listNode: any): string[] => {
-  if (!listNode.content) return [];
-
-  return listNode.content.map((listItem: any) => {
-    if (listItem.type === 'listItem' && listItem.content) {
-      return listItem.content
-        .map((node: any) => extractTextWithMarks(node))
-        .join('')
-        .trim();
-    }
-    return '';
-  }).filter((item: string) => item.length > 0);
+  return { blocks };
 };
 
 // Función auxiliar para extraer texto de un nodo
@@ -168,50 +153,28 @@ const extractText = (node: any): string => {
   return '';
 };
 
-// Función para generar el contenido Markdown con frontmatter YAML
-const generateMarkdownWithFrontmatter = (postData: any): string => {
-  const markdownBody = formatTiptapToMarkdown(postData.content);
-  
-  // Construir frontmatter YAML con saltos de línea reales
-  const frontmatterLines: string[] = ['---'];
-  
-  frontmatterLines.push(`title: "${sanitizeString(postData.title)}"`);
-  frontmatterLines.push(`date: "${new Date().toISOString()}"`);
-  frontmatterLines.push(`draft: ${postData.status === 'DRAFT'}`);
+// Función auxiliar para extraer items de listas
+const extractListItems = (listNode: any): string[] => {
+  if (!listNode.content) return [];
 
-  if (postData.excerpt) {
-    frontmatterLines.push(`excerpt: "${sanitizeString(postData.excerpt)}"`);
-  }
-
-  if (postData.tags && postData.tags.length > 0) {
-    frontmatterLines.push(`tags: [${postData.tags.map((t: string) => `"${sanitizeString(t)}"`).join(', ')}]`);
-  }
-
-  if (postData.category) {
-    frontmatterLines.push(`category: "${sanitizeString(postData.category)}"`);
-  }
-
-  frontmatterLines.push(`featured: ${postData.featuredImage ? 'true' : 'false'}`);
-  frontmatterLines.push('---');
-
-  return frontmatterLines.join('\n') + '\n\n' + markdownBody;
-};
-
-// Función para sanitizar strings - reemplaza comillas dobles por simples para evitar problemas de escape
-const sanitizeString = (str: string): string => {
-  if (!str) return '';
-  return str.replace(/"/g, "'").replace(/\n/g, ' ').replace(/\r/g, '');
+  return listNode.content.map((listItem: any) => {
+    if (listItem.type === 'listItem' && listItem.content) {
+      return listItem.content
+        .map((node: any) => extractText(node))
+        .join('')
+        .trim();
+    }
+    return '';
+  }).filter((item: string) => item.length > 0);
 };
 
 // Función para formatear el post completo antes de enviarlo al backend
 export const formatPostForBackend = (postData: any) => {
-  const markdownContent = generateMarkdownWithFrontmatter(postData);
-  
   const formatted: any = {
     title: postData.title,
     slug: postData.slug,
     excerpt: postData.excerpt,
-    content: markdownContent,
+    content: formatTiptapContent(postData.content),
     categorie: postData.category,
     tags: postData.tags,
     status: postData.status || 'DRAFT',
