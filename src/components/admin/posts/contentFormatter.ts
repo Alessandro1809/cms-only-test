@@ -44,7 +44,7 @@ export const formatTiptapContent = (tiptapJson: any) => {
   const processNode = (node: any) => {
     switch (node.type) {
       case 'paragraph':
-        const paragraphText = extractText(node);
+        const paragraphText = extractFormattedText(node);
         if (paragraphText.trim()) {
           blocks.push({
             type: 'paragraph',
@@ -55,7 +55,7 @@ export const formatTiptapContent = (tiptapJson: any) => {
         break;
 
       case 'heading':
-        const headingText = extractText(node);
+        const headingText = extractFormattedText(node);
         blocks.push({
           type: 'heading',
           level: node.attrs?.level || 1,
@@ -90,7 +90,7 @@ export const formatTiptapContent = (tiptapJson: any) => {
         break;
 
       case 'blockquote':
-        const quoteText = extractText(node);
+        const quoteText = extractFormattedText(node);
         blocks.push({
           type: 'blockquote',
           content: quoteText,
@@ -142,7 +142,49 @@ export const formatTiptapContent = (tiptapJson: any) => {
   return { blocks };
 };
 
-// Función auxiliar para extraer texto de un nodo
+// Función auxiliar para extraer texto con formato HTML de un nodo
+const extractFormattedText = (node: any): string => {
+  if (node.type === 'text') {
+    let text = node.text || '';
+    
+    // Aplicar formato basado en los marks
+    if (node.marks && Array.isArray(node.marks)) {
+      // Procesar los marks en orden para anidación correcta
+      const sortedMarks = [...node.marks].sort((a: any, b: any) => {
+        // Orden: bold -> italic -> underline -> link
+        const order: Record<string, number> = { bold: 1, italic: 2, underline: 3, link: 4 };
+        return (order[a.type] || 0) - (order[b.type] || 0);
+      });
+      
+      sortedMarks.forEach((mark: any) => {
+        switch (mark.type) {
+          case 'bold':
+            text = `<strong>${text}</strong>`;
+            break;
+          case 'italic':
+            text = `<em>${text}</em>`;
+            break;
+          case 'underline':
+            text = `<u>${text}</u>`;
+            break;
+          case 'link':
+            text = `<a href="${mark.attrs?.href || '#'}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+            break;
+        }
+      });
+    }
+    
+    return text;
+  }
+
+  if (node.content && Array.isArray(node.content)) {
+    return node.content.map((child: any) => extractFormattedText(child)).join('');
+  }
+
+  return '';
+};
+
+// Función auxiliar para extraer texto plano (mantener para compatibilidad)
 const extractText = (node: any): string => {
   if (node.type === 'text') {
     return node.text || '';
@@ -155,8 +197,23 @@ const extractText = (node: any): string => {
   return '';
 };
 
-// Función auxiliar para extraer items de listas
+// Función auxiliar para extraer items de listas con formato
 const extractListItems = (listNode: any): string[] => {
+  if (!listNode.content) return [];
+
+  return listNode.content.map((listItem: any) => {
+    if (listItem.type === 'listItem' && listItem.content) {
+      return listItem.content
+        .map((node: any) => extractFormattedText(node))
+        .join('')
+        .trim();
+    }
+    return '';
+  }).filter((item: string) => item.length > 0);
+};
+
+// Función auxiliar para extraer items de listas (versión texto plano para compatibilidad)
+const extractListItemsPlain = (listNode: any): string[] => {
   if (!listNode.content) return [];
 
   return listNode.content.map((listItem: any) => {
