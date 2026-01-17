@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Post, Filters } from '../types/post';
 
-const API_URL = import.meta.env.PUBLIC_API_URL || 'https://blog-api-v1.fly.dev/api/v1';
+const API_URL = import.meta.env.PUBLIC_API_URL || 'https://test-api-v1.fly.dev/api/v1';
 
 interface UsePostsReturn {
   posts: Post[];
